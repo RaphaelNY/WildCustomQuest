@@ -264,6 +264,10 @@
                 <input type="number" id="timeLimit" min="5" max="50" value="20">
             </div>
             <div class="form-group">
+                <label for="questLife">Quest Lives (carts allowed):</label>
+                <input type="number" id="questLife" min="1" max="9" value="3">
+            </div>
+            <div class="form-group">
                 <label for="rewardMoney">Money Reward:</label>
                 <input type="number" id="rewardMoney" min="1000" step="1000" value="24000">
             </div>
@@ -773,12 +777,13 @@
                 const questLevelElement = document.getElementById('questLevel');
                 const questLocationElement = document.getElementById('questLocation');
                 const timeLimitElement = document.getElementById('timeLimit');
+                const questLifeElement = document.getElementById('questLife');
                 const rewardMoneyElement = document.getElementById('rewardMoney');
                 const hrPointsElement = document.getElementById('hrPoints');
                 
                 if (!questIdElement || !questTitleElement || !questDescriptionElement || 
                     !questLevelElement || !questLocationElement || !timeLimitElement || 
-                    !rewardMoneyElement || !hrPointsElement) {
+                    !questLifeElement || !rewardMoneyElement || !hrPointsElement) {
                     showAlert("Some form elements are missing. Please reload the page.");
                     return;
                 }
@@ -789,6 +794,7 @@
                 const questLevel = parseInt(questLevelElement.value) || 8;
                 const questLocation = questLocationElement.value || "1181994624";
                 const timeLimit = parseInt(timeLimitElement.value) || 20;
+                const questLife = parseInt(questLifeElement.value) || 3;
                 const rewardMoney = parseInt(rewardMoneyElement.value) || 24000;
                 const hrPoints = parseInt(hrPointsElement.value) || 660;
                 
@@ -919,7 +925,7 @@
                             "_Value": 4
                         },
                         "_QuestAttribute": 0,
-                        "_QuestLife": 2,
+                        "_QuestLife": questLife,
                         "_QuestLv": questLevel,
                         "_QuestMsg": {
                             "_ClearConditionMsg": {
@@ -1149,6 +1155,7 @@
                         <div><strong>Level:</strong> ★${quest._DataList._QuestLv}</div>
                         <div><strong>Location:</strong> ${quest._DataList._Stage._Name}</div>
                         <div><strong>Time Limit:</strong> ${quest._DataList._TimeLimit} minutes</div>
+                        <div><strong>Quest Lives:</strong> ${quest._DataList._QuestLife}</div>
                         <div><strong>Reward Money:</strong> ${quest._DataList._RemMoney}</div>
                         <div><strong>HR Points:</strong> ${quest._DataList._HRPoint}</div>
                         <div><strong>Monsters:</strong></div>
