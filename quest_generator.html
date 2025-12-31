@@ -232,11 +232,11 @@
                 <textarea id="questDescription" rows="4" style="width: 100%;" placeholder="Enter quest description">A custom monster hunt created with Quest Generator.</textarea>
             </div>
             <div class="form-group">
-                <div class="form-group">
-            <label for="questLevel">Quest Level (★):</label>
-            <select id="questLevel">
-                <option value="1">★1</option>
-                <option value="2">★2</option>
+            <div class="form-group">
+                <label for="questLevel">Quest Level (★):</label>
+                <select id="questLevel">
+                    <option value="1">★1</option>
+                    <option value="2">★2</option>
                 <option value="3">★3</option>
                 <option value="4">★4</option>
                 <option value="5">★5</option>
@@ -247,6 +247,14 @@
             </select>
         </div>
 
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="legendaryId">Monster Variant (LegendaryID):</label>
+                <select id="legendaryId">
+                    <option value="NONE">Normal (NONE)</option>
+                    <option value="NORMAL" selected>Tempered / High Rank (NORMAL)</option>
+                    <option value="KING">Arch-Tempered / King (KING)</option>
                 </select>
             </div>
             <div class="form-group">
@@ -344,6 +352,7 @@
         let itemsData = [];
         let rewardListData = {};
         let selectedMonsters = [];
+        let selectedLegendaryId = 'NORMAL';
         let rewardItems = [];
         let currentLanguage = 'en';
         let questData = {
@@ -451,6 +460,14 @@
                 const searchTerm = this.value.toLowerCase();
                 filterItems(searchTerm);
             });
+
+            // LegendaryID selector
+            const legendarySelect = document.getElementById('legendaryId');
+            if (legendarySelect) {
+                legendarySelect.addEventListener('change', () => {
+                    selectedLegendaryId = legendarySelect.value || 'NORMAL';
+                });
+            }
 
             // Language selector
             document.getElementById('language').addEventListener('change', function() {
@@ -778,6 +795,7 @@
                 const questLocationElement = document.getElementById('questLocation');
                 const timeLimitElement = document.getElementById('timeLimit');
                 const questLifeElement = document.getElementById('questLife');
+                const legendaryElement = document.getElementById('legendaryId');
                 const rewardMoneyElement = document.getElementById('rewardMoney');
                 const hrPointsElement = document.getElementById('hrPoints');
                 
@@ -795,6 +813,8 @@
                 const questLocation = questLocationElement.value || "1181994624";
                 const timeLimit = parseInt(timeLimitElement.value) || 20;
                 const questLife = parseInt(questLifeElement.value) || 3;
+                const legendaryId = legendaryElement ? (legendaryElement.value || 'NORMAL') : 'NORMAL';
+                selectedLegendaryId = legendaryId;
                 const rewardMoney = parseInt(rewardMoneyElement.value) || 24000;
                 const hrPoints = parseInt(hrPointsElement.value) || 660;
                 
@@ -835,7 +855,7 @@
                             "_InitPos": "(-326,-28,176)",
                             "_IsUseRandomSize": false,
                             "_LayoutKeepID": -1,
-                            "_LegendaryID": "NORMAL",
+                            "_LegendaryID": legendaryId,
                             "_OptionTag": {
                                 "Value": 0
                             },
@@ -888,7 +908,7 @@
                                     "_StartAfterFirstCondition": false
                                 },
                                 "_EmTargetID": 101 + index,
-                                "_LegendaryID": "NORMAL",
+                                "_LegendaryID": legendaryId,
                                 "_RoleID": "NORMAL",
                                 "_ShowTargetGuide": true,
                                 "_TargetIDValue": monster.fixedId,
