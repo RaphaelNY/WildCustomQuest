@@ -233,19 +233,20 @@
             </div>
             <div class="form-group">
                 <div class="form-group">
-                    <label for="questLevel">Quest Level (★):</label>
-                    <select id="questLevel">
-                        <option value="1">★1</option>
-                        <option value="2">★2</option>
-                        <option value="3">★3</option>
-                        <option value="4">★4</option>
-                        <option value="5">★5</option>
-                        <option value="6">★6</option>
-                        <option value="7">★7</option>
-                        <option value="8">★8</option>
-                        <option value="9" selected>★9</option> <!-- Added ★9 -->
-                    </select>
-                </div>
+            <label for="questLevel">Quest Level (★):</label>
+            <select id="questLevel">
+                <option value="1">★1</option>
+                <option value="2">★2</option>
+                <option value="3">★3</option>
+                <option value="4">★4</option>
+                <option value="5">★5</option>
+                <option value="6">★6</option>
+                <option value="7">★7</option>
+                <option value="8">★8</option>
+                <option value="9" selected>★9</option> <!-- Added ★9 -->
+            </select>
+        </div>
+
                 </select>
             </div>
             <div class="form-group">
@@ -356,21 +357,21 @@
         async function loadData() {
             try {
                 // Load enemies data
-                const enemiesResponse = await fetch('./enemies.json');
+                const enemiesResponse = await fetch('enemies.json');
                 if (!enemiesResponse.ok) {
                     throw new Error(`Failed to load enemies.json: ${enemiesResponse.status} ${enemiesResponse.statusText}`);
                 }
                 enemiesData = await enemiesResponse.json();
                 
                 // Load items data
-                const itemsResponse = await fetch('./items.json');
+                const itemsResponse = await fetch('items.json');
                 if (!itemsResponse.ok) {
                     throw new Error(`Failed to load items.json: ${itemsResponse.status} ${itemsResponse.statusText}`);
                 }
                 itemsData = await itemsResponse.json();
                 
                 // Load reward list data
-                const rewardResponse = await fetch(`./reward_list_${currentLanguage}.json`);
+                const rewardResponse = await fetch(`reward_list_${currentLanguage}.json`);
                 if (!rewardResponse.ok) {
                     throw new Error(`Failed to load reward_list_${currentLanguage}.json: ${rewardResponse.status} ${rewardResponse.statusText}`);
                 }
@@ -458,7 +459,7 @@
                 
                 // Try to load reward list for the selected language
                 try {
-                    fetch(`./reward_list_${currentLanguage}.json`)
+                    fetch(`reward_list_${currentLanguage}.json`)
                         .then(response => {
                             if (response.ok) {
                                 return response.json();
@@ -507,7 +508,10 @@
 
             enemiesData.forEach(monster => {
                 // Skip monsters with empty names
-                if (!monster.name || !monster.name[currentLanguage]) return;
+                if (!monster.name) return;
+                
+                const localizedName = getLocalizedName(monster.name);
+                if (!localizedName || localizedName === 'Unknown') return;
                 
                 const card = document.createElement('div');
                 card.className = 'monster-card';
@@ -520,7 +524,7 @@
                 }
                 
                 card.innerHTML = `
-                    <h3>${monster.name[currentLanguage]}</h3>
+                    <h3>${localizedName}</h3>
                     <p>ID: ${monster.fixedId}</p>
                     <p>Label: ${monster.label}</p>
                 `;
@@ -580,8 +584,7 @@
                 let html = '<h3>Selected Monsters:</h3><ol>';
                 
                 selectedMonsters.forEach(monster => {
-                    const monsterName = monster.name && monster.name[currentLanguage] ? 
-                        monster.name[currentLanguage] : 'Unknown Monster';
+                    const monsterName = getLocalizedName(monster.name);
                     html += `<li>${monsterName} (${monster.label})</li>`;
                 });
                 
@@ -603,7 +606,7 @@
             // Create a new reward item object
             const newReward = {
                 itemId: itemsData.length > 0 ? itemsData[0].id : 1,
-                itemName: itemsData.length > 0 ? (itemsData[0].name[currentLanguage] || "Unknown Item") : "Potion",
+                itemName: itemsData.length > 0 ? getLocalizedName(itemsData[0].name) : "Potion",
                 minCount: 1,
                 maxCount: 1,
                 probability: 100
@@ -621,7 +624,7 @@
                     <select class="item-select" title="Item Name" onchange="updateRewardItem(${rewardIndex}, 'itemId', this.value)">
                         ${itemsData.map(item => `
                             <option value="${item.id}" ${item.id === newReward.itemId ? 'selected' : ''}>
-                                ${item.id}: ${item.name && item.name[currentLanguage] ? item.name[currentLanguage] : '---'}
+                                ${item.id}: ${getLocalizedName(item.name)}
                             </option>
                         `).join('')}
                     </select>
@@ -646,8 +649,7 @@
                 const selectedItem = itemsData.find(item => item.id == value);
                 if (selectedItem) {
                     rewardItems[index].itemId = parseInt(value);
-                    rewardItems[index].itemName = selectedItem.name && selectedItem.name[currentLanguage] ? 
-                        selectedItem.name[currentLanguage] : 'Unknown Item';
+                    rewardItems[index].itemName = getLocalizedName(selectedItem.name);
                 }
             } else if (property === 'minCount' || property === 'maxCount') {
                 rewardItems[index][property] = parseInt(value);
@@ -690,7 +692,7 @@
                         <select class="item-select" title="Item Name" onchange="updateRewardItem(${idx}, 'itemId', this.value)">
                             ${itemsData.map(menuItem => `
                                 <option value="${menuItem.id}" ${menuItem.id === item.itemId ? 'selected' : ''}>
-                                    ${menuItem.id}: ${menuItem.name && menuItem.name[currentLanguage] ? menuItem.name[currentLanguage] : '---'}
+                                    ${menuItem.id}: ${getLocalizedName(menuItem.name)}
                                 </option>
                             `).join('')}
                         </select>
@@ -713,7 +715,7 @@
             rewardItems.forEach((item, index) => {
                 const selectedItem = itemsData.find(menuItem => menuItem.id === item.itemId);
                 if (selectedItem && selectedItem.name) {
-                    item.itemName = selectedItem.name[currentLanguage] || 'Unknown Item';
+                    item.itemName = getLocalizedName(selectedItem.name);
                     
                     const rewardElement = document.querySelector(`.reward-item[data-index="${index}"]`);
                     if (rewardElement) {
@@ -721,7 +723,7 @@
                         if (select) {
                             select.innerHTML = itemsData.map(menuItem => `
                                 <option value="${menuItem.id}" ${menuItem.id === item.itemId ? 'selected' : ''}>
-                                    ${menuItem.id}: ${menuItem.name && menuItem.name[currentLanguage] ? menuItem.name[currentLanguage] : '---'}
+                                    ${menuItem.id}: ${getLocalizedName(menuItem.name)}
                                 </option>
                             `).join('');
                         }
@@ -1130,8 +1132,7 @@
                 let monstersList = '';
                 quest._BossZakoDataList._MainTargetDataList.forEach(target => {
                     const monster = enemiesData.find(m => m.fixedId === target._EmID);
-                    const monsterName = monster && monster.name && monster.name[currentLanguage] ? 
-                        monster.name[currentLanguage] : 'Unknown Monster';
+                    const monsterName = monster ? getLocalizedName(monster.name) : 'Unknown Monster';
                     monstersList += `<li>${monsterName} (${monster ? monster.label : 'Unknown'})</li>`;
                 });
                 
@@ -1218,6 +1219,30 @@
                 "1182777600": "st301"
             };
             return locations[locationId] || "st401";
+        }
+
+        function getLocalizedName(nameObj) {
+            if (!nameObj) return 'Unknown';
+            
+            const map = {
+                en: ['en', 'en-us'],
+                jp: ['jp', 'ja', 'ja-jp'],
+                cn: ['cn', 'zh-cn', 'zh-tw']
+            };
+            
+            const fallbackOrder = ['en-us', 'en', 'ja-jp', 'ja', 'zh-cn', 'zh-tw'];
+            const keysToTry = map[currentLanguage] || [currentLanguage];
+            
+            for (const key of keysToTry) {
+                if (nameObj[key]) return nameObj[key];
+            }
+            
+            for (const key of fallbackOrder) {
+                if (nameObj[key]) return nameObj[key];
+            }
+            
+            const firstKey = Object.keys(nameObj)[0];
+            return firstKey ? nameObj[firstKey] : 'Unknown';
         }
 
         function getLanguageCode(language) {
